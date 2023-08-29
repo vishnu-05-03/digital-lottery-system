@@ -7,14 +7,14 @@ reg [31:0] lucky_queue;
 reg full = 1'b0;
 reg [4:0] id = 5'b0;
 reg [4:0] winner = 5'bx;
-wire [4:0] winner_temp = 5'bx;
+reg [4:0] data;
 
 always @(posedge write or reset) begin
     if (reset == 1) begin
         lucky_queue = 32'b0;
         id = 5'b0;
     end
-    else if(id < 32) begin
+    else if(id < 31) begin
         lucky_queue[id] = luckybit;
         id = id + 1;
     end
@@ -23,38 +23,14 @@ always @(posedge write or reset) begin
     end
 end
 
-winner_generator winner_generator(
-    .lucky_queue(lucky_queue),
-    .id(id),
-    .stop(stop),
-    .clk(clk),
-    .reset(reset),
-    .data(winner_temp),
-    .full(full)
-);
-
 always @(posedge clk or reset) begin
     if (reset == 1) begin
         winner = 5'bx;
     end
-    else if (winner_temp != 5'b0 && (stop || full)) begin
-        winner = winner_temp;
+    else if (data != 5'b0 && (stop || full)) begin
+        winner = data;
     end
 end
-
-endmodule
-
-module winner_generator (
-    lucky_queue, id, stop, clk, reset, data, full
-);
-    input [31:0] lucky_queue;
-    input [4:0] id;
-    input stop;
-    input clk;
-    input reset;
-    output [4:0] data;
-    reg [4:0] data;
-    input full;
 
 reg [4:0] data_next;
 
